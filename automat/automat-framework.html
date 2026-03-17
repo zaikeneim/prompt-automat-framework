@@ -4,27 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The AUTOMAT Framework — Prompt Builder</title>
+
+<!-- Global fonts, reset, keyframes -->
+<link rel="stylesheet" href="./automat-framework.css">
+
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap');
-
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    min-height: 100vh;
-    background: linear-gradient(180deg, #f7f5f0 0%, #eee9e0 100%);
-    font-family: 'DM Sans', sans-serif;
-    color: #1a1a2e;
-  }
-
-  @keyframes fadeSlide {
-    from { opacity: 0; transform: translateY(-8px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes popIn {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
-  }
-
   .container { max-width: 780px; margin: 0 auto; padding: 0 24px; }
 
   /* Header */
@@ -37,7 +21,7 @@
     font-size: 22px; color: #1a1a2e;
   }
   .title-text:first-child { margin-right: 8px; }
-  .title-text:last-child { margin-left: 8px; }
+  .title-text:last-child  { margin-left: 8px; }
   .subtitle {
     color: #666; font-size: 15px; max-width: 520px;
     margin: 0 auto; line-height: 1.6;
@@ -84,9 +68,7 @@
     font-weight: 700; font-size: 17px; color: #1a1a2e;
     font-family: 'DM Serif Display', Georgia, serif; letter-spacing: -0.01em;
   }
-  .card-desc {
-    font-size: 13px; color: #666; margin-top: 4px; line-height: 1.5;
-  }
+  .card-desc { font-size: 13px; color: #666; margin-top: 4px; line-height: 1.5; }
   .card-step {
     font-size: 11px; font-weight: 700; color: #fff;
     border-radius: 20px; padding: 3px 10px;
@@ -102,22 +84,15 @@
     background: #fafafa; color: #1a1a2e;
   }
   .card-input textarea:focus { background: #fff; }
-  .card-input textarea::placeholder { color: #aaa; }
 
   /* Examples */
-  .examples-toggle {
-    padding: 0 24px 16px;
-  }
+  .examples-toggle { padding: 0 24px 16px; }
   .toggle-btn {
     background: none; border: none; cursor: pointer;
-    font-size: 13px; font-weight: 600;
-    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 600; font-family: 'DM Sans', sans-serif;
     display: flex; align-items: center; gap: 6px; padding: 4px 0;
   }
-  .toggle-arrow {
-    display: inline-block; font-size: 12px;
-    transition: transform 0.2s;
-  }
+  .toggle-arrow { display: inline-block; font-size: 12px; transition: transform 0.2s; }
   .toggle-arrow.open { transform: rotate(90deg); }
 
   .examples-grid {
@@ -137,7 +112,7 @@
     display: flex; align-items: center; gap: 6px;
     text-transform: uppercase; letter-spacing: 0.05em;
   }
-  .examples-heading.do { color: #2e7d32; }
+  .examples-heading.do   { color: #2e7d32; }
   .examples-heading.dont { color: #c62828; }
   .example-item {
     font-size: 13px; line-height: 1.5; padding: 4px 6px;
@@ -145,22 +120,17 @@
     border-radius: 6px; transition: all 0.2s; margin: 2px -6px;
   }
   .example-item.do {
-    color: #1a5e2a; cursor: pointer; position: relative;
-    padding-left: 22px;
+    color: #1a5e2a; cursor: pointer; position: relative; padding-left: 22px;
   }
   .example-item.do::before {
     content: '+'; position: absolute; left: 6px; top: 3px;
     font-weight: 700; font-size: 14px; color: #2e7d3288;
     transition: all 0.2s; font-family: 'DM Sans', sans-serif;
   }
-  .example-item.do:hover {
-    background: #d4edda; color: #145a24;
-  }
-  .example-item.do:hover::before { color: #2e7d32; transform: scale(1.2); }
-  .example-item.do:active { transform: scale(0.97); }
-  .example-item.do.clicked {
-    background: #2e7d32; color: #fff;
-  }
+  .example-item.do:hover           { background: #d4edda; color: #145a24; }
+  .example-item.do:hover::before   { color: #2e7d32; transform: scale(1.2); }
+  .example-item.do:active          { transform: scale(0.97); }
+  .example-item.do.clicked         { background: #2e7d32; color: #fff; }
   .example-item.do.clicked::before { color: #fff; content: '✓'; }
   .example-item.dont { color: #8b1a1a; padding-left: 22px; position: relative; }
   .example-item.dont::before {
@@ -169,7 +139,7 @@
     font-family: 'DM Sans', sans-serif;
   }
 
-  /* Buttons */
+  /* Action buttons */
   .actions {
     display: flex; gap: 12px; justify-content: center;
     padding: 32px 24px; max-width: 780px; margin: 0 auto;
@@ -188,11 +158,9 @@
     box-shadow: 0 4px 20px rgba(155, 89, 182, 0.3);
     transition: all 0.3s; letter-spacing: 0.02em;
   }
-  .btn-generate:disabled {
-    background: #ccc; box-shadow: none; cursor: not-allowed;
-  }
+  .btn-generate:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; }
 
-  /* Prompt Output */
+  /* Prompt output */
   .prompt-output {
     max-width: 780px; margin: 0 auto 60px; padding: 0 24px;
     animation: popIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -206,10 +174,10 @@
     padding: 16px 24px; border-bottom: 1px solid #2a2a4e;
   }
   .prompt-dots { display: flex; align-items: center; gap: 10px; }
-  .dot { width: 12px; height: 12px; border-radius: 50%; }
-  .dot-red { background: #ff5f56; }
-  .dot-yellow { background: #ffbd2e; }
-  .dot-green { background: #27c93f; }
+  .dot         { width: 12px; height: 12px; border-radius: 50%; }
+  .dot-red     { background: #ff5f56; }
+  .dot-yellow  { background: #ffbd2e; }
+  .dot-green   { background: #27c93f; }
   .prompt-label {
     color: #888; font-size: 13px; font-weight: 600; margin-left: 8px;
     font-family: 'IBM Plex Mono', monospace;
@@ -220,12 +188,9 @@
     cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s;
   }
   .btn-copy.copied { background: #27c93f; }
-  .prompt-content {
-    padding: 24px; max-height: 500px; overflow-y: auto;
-  }
+  .prompt-content { padding: 24px; max-height: 500px; overflow-y: auto; }
   .prompt-content pre {
-    color: #e0e0e0; font-size: 14px;
-    font-family: 'IBM Plex Mono', monospace;
+    color: #e0e0e0; font-size: 14px; font-family: 'IBM Plex Mono', monospace;
     line-height: 1.7; white-space: pre-wrap; word-break: break-word; margin: 0;
   }
 
@@ -272,104 +237,138 @@
 <div id="promptArea"></div>
 
 <script>
+// NOTE: SECTIONS and LABELS are duplicated here so this file works from file://.
+// The canonical source is data/sections.js — keep them in sync.
 const SECTIONS = [
   {
     letter: "A", color: "#E74C3C", bg: "#FDE8E8",
-    title: "Act as…, Bot Persona",
+    title: "Act as\u2026, Bot Persona",
     description: "Define the bot persona of the AI assistant just in a few words.",
-    placeholder: "e.g. Act as a senior Java architect with 20 years of experience in enterprise systems…",
+    placeholder: "e.g. Act as a senior Java architect with 20 years of experience in enterprise systems\u2026",
     doTitle: "Be very specific in your description.",
     doExamples: [
-      "Act as a sensitive elderly psychotherapist …",
-      "Act as a patient support staff …",
-      "Act as a professional journalist …",
-      "Act as a pebble, a car in love with its driver …",
-      "Act as a 4th grader math tutor …",
-      "Act as a csh-terminal on the mac …"
+      "Act as a sensitive elderly psychotherapist \u2026",
+      "Act as a patient support staff \u2026",
+      "Act as a professional journalist \u2026",
+      "Act as a pebble, a car in love with its driver \u2026",
+      "Act as a 4th grader math tutor \u2026",
+      "Act as a csh-terminal on the mac \u2026",
     ],
-    dontTitle: "Don't describe a behaviour that the AI exhibits anyway.",
-    dontExamples: ["Act as a helpful AI …"]
+    dontTitle: "Don\u2019t describe a behaviour that the AI exhibits anyway.",
+    dontExamples: ["Act as a helpful AI \u2026"],
   },
   {
     letter: "U", color: "#E67E22", bg: "#FEF3E2",
     title: "User Persona, Audience",
     description: "Describe the audience, their background, the expected level of knowledge of the recipients in a few words.",
-    placeholder: "e.g. Explain it like to a senior backend engineer familiar with Spring Boot and microservices…",
+    placeholder: "e.g. Explain it like to a senior backend engineer familiar with Spring Boot and microservices\u2026",
     doTitle: "Describe the audience.",
     doExamples: [
-      "Explain it like to someone with an MSc in software engineering …",
-      "… like to a 5-year-old child",
-      "… to the owner of the Tesla model S …"
+      "Explain it like to someone with an MSc in software engineering \u2026",
+      "\u2026 like to a 5-year-old child",
+      "\u2026 to the owner of the Tesla model S \u2026",
     ],
-    dontTitle: "Don't be unspecific about the audience.",
-    dontExamples: ["… tell me …", "… to the user …"]
+    dontTitle: "Don\u2019t be unspecific about the audience.",
+    dontExamples: ["\u2026 tell me \u2026", "\u2026 to the user \u2026"],
   },
   {
     letter: "T", color: "#F1C40F", bg: "#FEF9E7",
     title: "Targeted Action",
     description: "Use a meaningful verb and objects describing the transformation from input to output or the way the model should produce or create the output.",
-    placeholder: "e.g. Summarize the key differences between Java 17 and Java 21, focusing on virtual threads and pattern matching…",
+    placeholder: "e.g. Summarize the key differences between Java 17 and Java 21, focusing on virtual threads and pattern matching\u2026",
     doTitle: "Describe the task.",
-    doExamples: ["… summarize …","… list …","… translate …","… classify …","… explain …","… extract …","… format …","… comment …","… document the code …"],
-    dontTitle: 'Avoid using verbs like "answer".',
-    dontExamples: ["… answer the question …","… write a …","… give me …"]
+    doExamples: [
+      "\u2026 summarize \u2026", "\u2026 list \u2026", "\u2026 translate \u2026", "\u2026 classify \u2026",
+      "\u2026 explain \u2026", "\u2026 extract \u2026", "\u2026 format \u2026", "\u2026 comment \u2026",
+      "\u2026 document the code \u2026",
+    ],
+    dontTitle: "Avoid using verbs like \u201canswer\u201d.",
+    dontExamples: ["\u2026 answer the question \u2026", "\u2026 write a \u2026", "\u2026 give me \u2026"],
   },
   {
     letter: "O", color: "#2ECC71", bg: "#E8F8F0",
     title: "Output Definition",
     description: "The output can be described in a separate section in great detail.",
-    placeholder: "e.g. A comparison table with columns: Feature, Java 17, Java 21, Migration Notes…",
+    placeholder: "e.g. A comparison table with columns: Feature, Java 17, Java 21, Migration Notes\u2026",
     doTitle: "Describe the output.",
-    doExamples: ["… a list of steps …","… a formula …","… a table …","… python code …","… a JSON …","… a floating-point number between 0.0 and 1.0 …","… a recipe with a list of ingredients for 4 persons …","… a list of two-letter ISO country codes …","… an iambic pentameter …"],
-    dontTitle: "Don't be too general.",
-    dontExamples: ["… an answer …","… a text …","… a few …"]
+    doExamples: [
+      "\u2026 a list of steps \u2026", "\u2026 a formula \u2026", "\u2026 a table \u2026",
+      "\u2026 python code \u2026", "\u2026 a JSON \u2026",
+      "\u2026 a floating-point number between 0.0 and 1.0 \u2026",
+      "\u2026 a recipe with a list of ingredients for 4 persons \u2026",
+      "\u2026 a list of two-letter ISO country codes \u2026",
+      "\u2026 an iambic pentameter \u2026",
+    ],
+    dontTitle: "Don\u2019t be too general.",
+    dontExamples: ["\u2026 an answer \u2026", "\u2026 a text \u2026", "\u2026 a few \u2026"],
   },
   {
     letter: "M", color: "#3498DB", bg: "#E8F4FD",
     title: "Mode / Tonality / Style",
     description: "Define the way the model should convey the message. This can help with conversational utterances and text output for human users.",
-    placeholder: "e.g. Use a confident, technical tone. Be concise but thorough. Avoid filler words…",
+    placeholder: "e.g. Use a confident, technical tone. Be concise but thorough. Avoid filler words\u2026",
     doTitle: "Describe the mode/tone/style.",
-    doExamples: ["… empathetic …","… confident …","… aggressive …","… moaning …","… sarcastic …","… witty …","… stuttering …","… Hemingway style …","… like in a legal text …"],
-    dontTitle: "Don't describe a behaviour the AI tries to exhibit anyway.",
-    dontExamples: ["… friendly …","… neutral …","… smart …","… intelligent …"]
+    doExamples: [
+      "\u2026 empathetic \u2026", "\u2026 confident \u2026", "\u2026 aggressive \u2026", "\u2026 moaning \u2026",
+      "\u2026 sarcastic \u2026", "\u2026 witty \u2026", "\u2026 stuttering \u2026",
+      "\u2026 Hemingway style \u2026", "\u2026 like in a legal text \u2026",
+    ],
+    dontTitle: "Don\u2019t describe a behaviour the AI tries to exhibit anyway.",
+    dontExamples: ["\u2026 friendly \u2026", "\u2026 neutral \u2026", "\u2026 smart \u2026", "\u2026 intelligent \u2026"],
   },
   {
     letter: "A", color: "#9B59B6", bg: "#F3E8FD",
     title: "Atypical Cases",
     description: "Handle edge cases for prompts used in applications or repeated requests.",
-    placeholder: "e.g. If the Java version is not specified, assume Java 21. If a feature doesn't exist in the target version, note the minimum version required…",
+    placeholder: "e.g. If the Java version is not specified, assume Java 21. If a feature doesn\u2019t exist in the target version, note the minimum version required\u2026",
     doTitle: "Describe atypical, edge cases.",
     doExamples: [
-      '… list movies in a table. If "director" or "release date" is missing, put "-". If the title is unknown, skip it.',
-      "… if the answer is not in the provided context, tell the user you can't answer …",
-      '… if the category is not "offer", "confirmation", "receipt", set it as "NULL" …',
-      "… if the question is off-topic, say you can only discuss John Deere tractors …",
-      "… if the user gives feedback instead of a question, do xyz …"
+      "\u2026 list movies in a table. If \u201cdirector\u201d or \u201crelease date\u201d is missing, put \u201c-\u201d. If the title is unknown, skip it.",
+      "\u2026 if the answer is not in the provided context, tell the user you can\u2019t answer \u2026",
+      "\u2026 if the category is not \u201coffer\u201d, \u201cconfirmation\u201d, \u201creceipt\u201d, set it as \u201cNULL\u201d \u2026",
+      "\u2026 if the question is off-topic, say you can only discuss John Deere tractors \u2026",
+      "\u2026 if the user gives feedback instead of a question, do xyz \u2026",
     ],
-    dontTitle: "Don't forget to say what to do if an assumption is wrong.",
+    dontTitle: "Don\u2019t forget to say what to do if an assumption is wrong.",
     dontExamples: [
-      "… answer only on your knowledge … > and if you don't know?",
-      "… translate English to French … > what if input is already French?"
-    ]
+      "\u2026 answer only on your knowledge \u2026 > and if you don\u2019t know?",
+      "\u2026 translate English to French \u2026 > what if input is already French?",
+    ],
   },
   {
     letter: "T", color: "#1ABC9C", bg: "#E8FAF6",
     title: "Topic Whitelisting",
     description: "When building a conversational system, you may want to restrict which topics the model can discuss.",
-    placeholder: "e.g. Answer only questions about Java, JVM internals, build tools (Maven/Gradle), and related frameworks…",
+    placeholder: "e.g. Answer only questions about Java, JVM internals, build tools (Maven/Gradle), and related frameworks\u2026",
     doTitle: "List permitted conversation topics.",
-    doExamples: ["… answer only questions regarding the CRB2004, its features and operations. Comment on user feedback and tell the user about your capabilities."],
-    dontTitle: "Don't tell the model what NOT to talk about — the list won't be exhaustive.",
-    dontExamples: ["… don't talk about politics, religion, race … > but talking about hacking is fine?"]
-  }
+    doExamples: [
+      "\u2026 answer only questions regarding the CRB2004, its features and operations. Comment on user feedback and tell the user about your capabilities.",
+    ],
+    dontTitle: "Don\u2019t tell the model what NOT to talk about \u2014 the list won\u2019t be exhaustive.",
+    dontExamples: [
+      "\u2026 don\u2019t talk about politics, religion, race \u2026 > but talking about hacking is fine?",
+    ],
+  },
 ];
 
 const LABELS = ["Bot Persona","Audience","Task","Output Format","Tone & Style","Edge Cases","Topic Scope"];
 
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
 function escapeHtml(str) {
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
+
+function capitalize(str) {
+  if (!str) return str;
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+// ── DOM construction ──────────────────────────────────────────────────────────
 
 function buildCards() {
   const container = document.getElementById('cardsContainer');
@@ -381,7 +380,7 @@ function buildCards() {
           <div class="card-title">${escapeHtml(s.title)}</div>
           <div class="card-desc">${escapeHtml(s.description)}</div>
         </div>
-        <div class="card-step" style="background:${s.color}">${i+1} / 7</div>
+        <div class="card-step" style="background:${s.color}">${i + 1} / 7</div>
       </div>
       <div class="card-input">
         <textarea id="input-${i}" rows="3" placeholder="${escapeHtml(s.placeholder)}"
@@ -390,7 +389,7 @@ function buildCards() {
       <div class="examples-toggle">
         <button class="toggle-btn" style="color:${s.color}" onclick="toggleExamples(${i})">
           <span class="toggle-arrow" id="arrow-${i}">▶</span>
-          <span id="toggleText-${i}">Show examples & tips</span>
+          <span id="toggleText-${i}">Show examples &amp; tips</span>
         </button>
         <div id="examples-${i}" style="display:none">
           <div class="examples-grid">
@@ -408,6 +407,8 @@ function buildCards() {
     </div>
   `).join('');
 }
+
+// ── Card interaction ──────────────────────────────────────────────────────────
 
 function activateCard(index) {
   document.querySelectorAll('.card').forEach((c, i) => {
@@ -427,34 +428,28 @@ function activateCard(index) {
 }
 
 function toggleExamples(index) {
-  const el = document.getElementById(`examples-${index}`);
+  const el    = document.getElementById(`examples-${index}`);
   const arrow = document.getElementById(`arrow-${index}`);
-  const text = document.getElementById(`toggleText-${index}`);
-  const open = el.style.display === 'none';
+  const text  = document.getElementById(`toggleText-${index}`);
+  const open  = el.style.display === 'none';
   el.style.display = open ? 'block' : 'none';
   arrow.classList.toggle('open', open);
   text.textContent = open ? 'Hide examples & tips' : 'Show examples & tips';
 }
 
 function appendExample(sectionIndex, exampleIndex, el) {
-  const ta = document.getElementById(`input-${sectionIndex}`);
-  const text = SECTIONS[sectionIndex].doExamples[exampleIndex];
-
-  // Clean the example: strip leading "… " or trailing " …"
-  let clean = text.replace(/^…\s*/g, '').replace(/\s*…$/g, '').trim();
-
+  const ta      = document.getElementById(`input-${sectionIndex}`);
+  const text    = SECTIONS[sectionIndex].doExamples[exampleIndex];
+  const clean   = text.replace(/^…\s*/g, '').replace(/\s*…$/g, '').trim();
   const current = ta.value.trim();
 
   if (current) {
-    // Check if the example text is already present (avoid duplicates)
     if (current.toLowerCase().includes(clean.toLowerCase())) {
-      // Flash red briefly to signal "already added"
       el.style.background = '#ffcdd2';
       el.style.color = '#c62828';
       setTimeout(() => { el.style.background = ''; el.style.color = ''; }, 600);
       return;
     }
-    // Natural concatenation: if current text ends with punctuation, add space; otherwise add ". "
     const lastChar = current.slice(-1);
     if (['.', '!', '?', ';', ':'].includes(lastChar)) {
       ta.value = current + ' ' + capitalize(clean);
@@ -467,30 +462,24 @@ function appendExample(sectionIndex, exampleIndex, el) {
     ta.value = capitalize(clean);
   }
 
-  // Visual feedback: flash green
   el.classList.add('clicked');
   setTimeout(() => el.classList.remove('clicked'), 700);
 
-  // Activate card and update progress
   activateCard(sectionIndex);
   updateProgress();
 
-  // Auto-resize textarea if content grew
   ta.style.height = 'auto';
   ta.style.height = Math.max(ta.scrollHeight, 72) + 'px';
 }
 
-function capitalize(str) {
-  if (!str) return str;
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
+// ── Progress & state ──────────────────────────────────────────────────────────
 
 function getValues() {
   return SECTIONS.map((_, i) => document.getElementById(`input-${i}`).value.trim());
 }
 
 function updateProgress() {
-  const vals = getValues();
+  const vals   = getValues();
   const filled = vals.filter(v => v).length;
   document.getElementById('progressFill').style.width = `${(filled / 7) * 100}%`;
   document.getElementById('progressLabel').textContent = `${filled}/7`;
@@ -498,13 +487,13 @@ function updateProgress() {
 }
 
 function buildPrompt() {
-  const vals = getValues();
+  const vals  = getValues();
   const parts = [];
-  vals.forEach((v, i) => {
-    if (v) parts.push(`## ${LABELS[i]}\n${v}`);
-  });
+  vals.forEach((v, i) => { if (v) parts.push(`## ${LABELS[i]}\n${v}`); });
   return parts.join('\n\n');
 }
+
+// ── Actions ───────────────────────────────────────────────────────────────────
 
 function generatePrompt() {
   const prompt = buildPrompt();
@@ -533,15 +522,11 @@ function generatePrompt() {
 }
 
 function copyPrompt() {
-  const prompt = buildPrompt();
-  navigator.clipboard.writeText(prompt).then(() => {
+  navigator.clipboard.writeText(buildPrompt()).then(() => {
     const btn = document.getElementById('btnCopy');
     btn.textContent = '✓ Copied!';
     btn.classList.add('copied');
-    setTimeout(() => {
-      btn.textContent = 'Copy';
-      btn.classList.remove('copied');
-    }, 2000);
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
   });
 }
 
@@ -556,7 +541,8 @@ function resetAll() {
   updateProgress();
 }
 
-// Init
+// ── Init ──────────────────────────────────────────────────────────────────────
+
 buildCards();
 updateProgress();
 </script>

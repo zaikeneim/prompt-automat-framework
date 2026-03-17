@@ -1,107 +1,35 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { SECTIONS, LABELS } from "../data/sections.js";
 
-const SECTIONS = [
-  {
-    letter: "A", color: "#E74C3C", bg: "#FDE8E8",
-    title: "Act as…, Bot Persona",
-    description: "Define the bot persona of the AI assistant just in a few words.",
-    placeholder: "e.g. Act as a senior Java architect with 20 years of experience in enterprise systems…",
-    doTitle: "Be very specific in your description.",
-    doExamples: [
-      "Act as a sensitive elderly psychotherapist …",
-      "Act as a patient support staff …",
-      "Act as a professional journalist …",
-      "Act as a pebble, a car in love with its driver …",
-      "Act as a 4th grader math tutor …",
-      "Act as a csh-terminal on the mac …",
-    ],
-    dontTitle: "Don't describe a behaviour that the AI exhibits anyway.",
-    dontExamples: ["Act as a helpful AI …"],
-  },
-  {
-    letter: "U", color: "#E67E22", bg: "#FEF3E2",
-    title: "User Persona, Audience",
-    description: "Describe the audience, their background, the expected level of knowledge of the recipients in a few words.",
-    placeholder: "e.g. Explain it like to a senior backend engineer familiar with Spring Boot and microservices…",
-    doTitle: "Describe the audience.",
-    doExamples: [
-      "Explain it like to someone with an MSc in software engineering …",
-      "… like to a 5-year-old child",
-      "… to the owner of the Tesla model S …",
-    ],
-    dontTitle: "Don't be unspecific about the audience.",
-    dontExamples: ["… tell me …", "… to the user …"],
-  },
-  {
-    letter: "T", color: "#F1C40F", bg: "#FEF9E7",
-    title: "Targeted Action",
-    description: "Use a meaningful verb and objects describing the transformation from input to output or the way the model should produce or create the output.",
-    placeholder: "e.g. Summarize the key differences between Java 17 and Java 21, focusing on virtual threads and pattern matching…",
-    doTitle: "Describe the task.",
-    doExamples: ["… summarize …","… list …","… translate …","… classify …","… explain …","… extract …","… format …","… comment …","… document the code …"],
-    dontTitle: 'Avoid using verbs like "answer".',
-    dontExamples: ["… answer the question …","… write a …","… give me …"],
-  },
-  {
-    letter: "O", color: "#2ECC71", bg: "#E8F8F0",
-    title: "Output Definition",
-    description: "The output can be described in a separate section in great detail.",
-    placeholder: "e.g. A comparison table with columns: Feature, Java 17, Java 21, Migration Notes…",
-    doTitle: "Describe the output.",
-    doExamples: ["… a list of steps …","… a formula …","… a table …","… python code …","… a JSON …","… a floating-point number between 0.0 and 1.0 …","… a recipe with a list of ingredients for 4 persons …","… a list of two-letter ISO country codes …","… an iambic pentameter …"],
-    dontTitle: "Don't be too general.",
-    dontExamples: ["… an answer …","… a text …","… a few …"],
-  },
-  {
-    letter: "M", color: "#3498DB", bg: "#E8F4FD",
-    title: "Mode / Tonality / Style",
-    description: "Define the way the model should convey the message. This can help with conversational utterances and text output for human users.",
-    placeholder: "e.g. Use a confident, technical tone. Be concise but thorough. Avoid filler words…",
-    doTitle: "Describe the mode/tone/style.",
-    doExamples: ["… empathetic …","… confident …","… aggressive …","… moaning …","… sarcastic …","… witty …","… stuttering …","… Hemingway style …","… like in a legal text …"],
-    dontTitle: "Don't describe a behaviour the AI tries to exhibit anyway.",
-    dontExamples: ["… friendly …","… neutral …","… smart …","… intelligent …"],
-  },
-  {
-    letter: "A", color: "#9B59B6", bg: "#F3E8FD",
-    title: "Atypical Cases",
-    description: "Handle edge cases for prompts used in applications or repeated requests.",
-    placeholder: "e.g. If the Java version is not specified, assume Java 21. If a feature doesn't exist in the target version, note the minimum version required…",
-    doTitle: "Describe atypical, edge cases.",
-    doExamples: [
-      '… list movies in a table. If "director" or "release date" is missing, put "-". If the title is unknown, skip it.',
-      "… if the answer is not in the provided context, tell the user you can't answer …",
-      '… if the category is not "offer", "confirmation", "receipt", set it as "NULL" …',
-      "… if the question is off-topic, say you can only discuss John Deere tractors …",
-      "… if the user gives feedback instead of a question, do xyz …",
-    ],
-    dontTitle: "Don't forget to say what to do if an assumption is wrong.",
-    dontExamples: [
-      "… answer only on your knowledge … > and if you don't know?",
-      "… translate English to French … > what if input is already French?",
-    ],
-  },
-  {
-    letter: "T", color: "#1ABC9C", bg: "#E8FAF6",
-    title: "Topic Whitelisting",
-    description: "When building a conversational system, you may want to restrict which topics the model can discuss.",
-    placeholder: "e.g. Answer only questions about Java, JVM internals, build tools (Maven/Gradle), and related frameworks…",
-    doTitle: "List permitted conversation topics.",
-    doExamples: ["… answer only questions regarding the CRB2004, its features and operations. Comment on user feedback and tell the user about your capabilities."],
-    dontTitle: "Don't tell the model what NOT to talk about — the list won't be exhaustive.",
-    dontExamples: ["… don't talk about politics, religion, race … > but talking about hacking is fine?"],
-  },
-];
+// ── Module-level constants ────────────────────────────────────────────────────
 
-const LABELS = ["Bot Persona","Audience","Task","Output Format","Tone & Style","Edge Cases","Topic Scope"];
+// Hoisted: stable, never change between renders.
+const LETTERS = "AUTOMAT".split("");
+const COLORS  = SECTIONS.map(s => s.color);
+
+// Keyframes and * reset kept here so the component works in isolation
+// (e.g. Storybook, unit tests) without the CSS file being linked.
+// The host page / index.html should also link automat-framework.css for
+// the font import, body background, and ::placeholder styles.
+const GLOBAL_CSS = `
+  @keyframes fadeSlide { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes popIn { from { opacity:0; transform:scale(0.9); } to { opacity:1; transform:scale(1); } }
+  * { box-sizing: border-box; }
+  textarea::placeholder { color: #aaa; }
+`;
+
+// ── Helper functions ──────────────────────────────────────────────────────────
 
 function cleanExample(text) {
   return text.replace(/^…\s*/g, '').replace(/\s*…$/g, '').trim();
 }
+
 function capitalize(str) {
   if (!str) return str;
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
+
+// ── Sub-components ────────────────────────────────────────────────────────────
 
 const LetterBadge = ({ letter, color, size = 40 }) => (
   <div style={{
@@ -239,71 +167,89 @@ const SectionCard = ({ section, value, onChange, index, isActive, onFocus, onApp
   );
 };
 
+// ── Main component ────────────────────────────────────────────────────────────
+
 export default function AUTOMATFramework() {
-  const [values, setValues] = useState(SECTIONS.map(() => ""));
+  const [values, setValues]           = useState(() => SECTIONS.map(() => ""));
   const [activeIndex, setActiveIndex] = useState(null);
-  const [showPrompt, setShowPrompt] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [showPrompt, setShowPrompt]   = useState(false);
+  const [copied, setCopied]           = useState(false);
   const promptRef = useRef(null);
 
-  const handleChange = (i, val) => {
-    const next = [...values]; next[i] = val; setValues(next);
-  };
+  // Functional update: no stale-closure risk, stable reference.
+  const handleChange = useCallback((i, val) => {
+    setValues(prev => {
+      const next = [...prev];
+      next[i] = val;
+      return next;
+    });
+  }, []);
 
+  // Functional update inside useCallback; `values` not in deps.
   const handleAppendExample = useCallback((si, rawText) => {
     const clean = cleanExample(rawText);
-    const current = values[si].trim();
-    if (current && current.toLowerCase().includes(clean.toLowerCase())) return 'duplicate';
-    let newVal;
-    if (current) {
-      const lc = current.slice(-1);
-      if (['.','!','?',';',':'].includes(lc)) newVal = current + ' ' + capitalize(clean);
-      else if (lc === ',') newVal = current + ' ' + clean;
-      else newVal = current + '. ' + capitalize(clean);
-    } else { newVal = capitalize(clean); }
-    const next = [...values]; next[si] = newVal; setValues(next);
+    let outcome;
+    setValues(prev => {
+      const current = prev[si].trim();
+      if (current && current.toLowerCase().includes(clean.toLowerCase())) {
+        outcome = 'duplicate';
+        return prev;
+      }
+      let newVal;
+      if (current) {
+        const lc = current.slice(-1);
+        if (['.', '!', '?', ';', ':'].includes(lc)) newVal = current + ' ' + capitalize(clean);
+        else if (lc === ',')                          newVal = current + ' ' + clean;
+        else                                          newVal = current + '. ' + capitalize(clean);
+      } else {
+        newVal = capitalize(clean);
+      }
+      outcome = 'added';
+      const next = [...prev];
+      next[si] = newVal;
+      return next;
+    });
     setActiveIndex(si);
-    return 'added';
-  }, [values]);
+    return outcome;
+  }, []);
 
   const filledCount = values.filter(v => v.trim()).length;
 
-  const buildPrompt = () => {
+  // Re-computed only when `values` changes.
+  const prompt = useMemo(() => {
     const parts = [];
     values.forEach((v, i) => { if (v.trim()) parts.push(`## ${LABELS[i]}\n${v.trim()}`); });
     return parts.join("\n\n");
-  };
+  }, [values]);
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(buildPrompt()).then(() => {
-      setCopied(true); setTimeout(() => setCopied(false), 2000);
+  const handleCopy = useCallback(() => {
+    navigator.clipboard.writeText(prompt).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     });
-  };
+  }, [prompt]);
 
-  const handleReset = () => { setValues(SECTIONS.map(() => "")); setShowPrompt(false); setActiveIndex(null); };
+  const handleReset = useCallback(() => {
+    setValues(SECTIONS.map(() => ""));
+    setShowPrompt(false);
+    setActiveIndex(null);
+  }, []);
 
   useEffect(() => {
-    if (showPrompt && promptRef.current) promptRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (showPrompt && promptRef.current) {
+      promptRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   }, [showPrompt]);
-
-  const letters = "AUTOMAT".split("");
-  const colors = SECTIONS.map(s => s.color);
 
   return (
     <div style={{ minHeight: "100vh", background: "linear-gradient(180deg, #f7f5f0 0%, #eee9e0 100%)", fontFamily: "'DM Sans', sans-serif" }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500&display=swap');
-        @keyframes fadeSlide { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
-        @keyframes popIn { from { opacity:0; transform:scale(0.9); } to { opacity:1; transform:scale(1); } }
-        * { box-sizing: border-box; }
-        textarea::placeholder { color: #aaa; }
-      `}</style>
+      <style>{GLOBAL_CSS}</style>
 
       <div style={{ maxWidth: 780, margin: "0 auto", padding: "40px 24px 0" }}>
         <div style={{ textAlign: "center", marginBottom: 12 }}>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 4, marginBottom: 16 }}>
             <span style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: 22, color: "#1a1a2e", marginRight: 8 }}>The</span>
-            {letters.map((l, i) => <LetterBadge key={i} letter={l} color={colors[i]} size={38} />)}
+            {LETTERS.map((l, i) => <LetterBadge key={i} letter={l} color={COLORS[i]} size={38} />)}
             <span style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: 22, color: "#1a1a2e", marginLeft: 8 }}>Framework</span>
           </div>
           <p style={{ color: "#666", fontSize: 15, maxWidth: 520, margin: "0 auto", lineHeight: 1.6 }}>
@@ -365,7 +311,7 @@ export default function AUTOMATFramework() {
               <pre style={{
                 color: "#e0e0e0", fontSize: 14, fontFamily: "'IBM Plex Mono', monospace",
                 lineHeight: 1.7, whiteSpace: "pre-wrap", wordBreak: "break-word", margin: 0,
-              }}>{buildPrompt()}</pre>
+              }}>{prompt}</pre>
             </div>
           </div>
         </div>
